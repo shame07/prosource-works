@@ -22,10 +22,10 @@ app.use(express.json());
 
 // ✅ MySQL DB connection using ENV values
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,        // e.g., p3plcpnl0513.prod.phx3.secureserver.net
-  user: process.env.DB_USER,        // e.g., SB_faEinHurVf1cM
-  password: process.env.DB_PASS,    // e.g., prosource_works@123
-  database: process.env.DB_NAME     // e.g., ct_pros_rjc91
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME
 });
 
 db.connect((err) => {
@@ -73,11 +73,17 @@ app.post('/register-admin', async (req, res) => {
   const { email, password, accessCode } = req.body;
   if (accessCode !== ADMIN_SECRET_CODE) return res.status(403).send('❌ Invalid access code.');
   db.query('SELECT * FROM admins WHERE email = ?', [email], async (err, results) => {
-    if (err) return res.send('Try again later.');
+    if (err) {
+      console.error('❌ Admin check error:', err);
+      return res.send('❌ DB error, check logs.');
+    }
     if (results.length > 0) return res.send('⚠️ Admin already exists.');
     const hash = await bcrypt.hash(password, 10);
     db.query('INSERT INTO admins (email, password) VALUES (?, ?)', [email, hash], (err) => {
-      if (err) return res.send('❌ Admin creation failed.');
+      if (err) {
+        console.error('❌ Admin creation error:', err);
+        return res.send('❌ Admin creation failed.');
+      }
       res.send('<h3>✅ Admin registered! <a href="/admin-login.html">Login</a></h3>');
     });
   });
