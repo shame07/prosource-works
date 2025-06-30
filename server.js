@@ -4,10 +4,11 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
-const ADMIN_SECRET_CODE = "MY_SECRET_ADMIN_CODE_786";
+const PORT = process.env.PORT || 3000;
+const ADMIN_SECRET_CODE = "Secure@Code@2025";
 
 // Middleware
 app.use(session({
@@ -15,17 +16,16 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
 }));
-
 app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// MySQL
+// ✅ MySQL DB connection using ENV values
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Qwertypoverty12',
-  database: 'prosource'
+  host: process.env.DB_HOST,        // e.g., p3plcpnl0513.prod.phx3.secureserver.net
+  user: process.env.DB_USER,        // e.g., SB_faEinHurVf1cM
+  password: process.env.DB_PASS,    // e.g., prosource_works@123
+  database: process.env.DB_NAME     // e.g., ct_pros_rjc91
 });
 
 db.connect((err) => {
@@ -33,16 +33,16 @@ db.connect((err) => {
   else console.log('✅ Connected to MySQL DB.');
 });
 
-// Nodemailer
+// ✅ Nodemailer for OTP emails (Use Gmail App Password)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'yourgmail@gmail.com',     // 🔁 Your Gmail
-    pass: 'your_app_password'        // 🔁 App password
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS
   }
 });
 
-// Home & Session
+// Routes
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/get-session', (req, res) => {
   if (req.session.admin) res.json({ loggedIn: true, email: req.session.admin.email, role: "admin" });
@@ -50,7 +50,7 @@ app.get('/get-session', (req, res) => {
   else res.json({ loggedIn: false });
 });
 
-// Admin Login/Register
+// Admin Auth
 app.post('/admin-login', (req, res) => {
   const { email, password } = req.body;
   db.query('SELECT * FROM admins WHERE email = ?', [email], async (err, results) => {
@@ -72,7 +72,6 @@ app.get('/admin-register', (req, res) => {
 app.post('/register-admin', async (req, res) => {
   const { email, password, accessCode } = req.body;
   if (accessCode !== ADMIN_SECRET_CODE) return res.status(403).send('❌ Invalid access code.');
-
   db.query('SELECT * FROM admins WHERE email = ?', [email], async (err, results) => {
     if (err) return res.send('Try again later.');
     if (results.length > 0) return res.send('⚠️ Admin already exists.');
@@ -84,7 +83,7 @@ app.post('/register-admin', async (req, res) => {
   });
 });
 
-// User Login/Register
+// User Auth
 app.post('/user-login', (req, res) => {
   const { email, password } = req.body;
   db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
@@ -116,7 +115,7 @@ app.post('/user-register', async (req, res) => {
 // Logout
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
-// ========== USER Forgot Password ==========
+// Forgot Password (User)
 app.get('/user-forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'user-forgot-password.html'));
 });
@@ -124,16 +123,15 @@ app.get('/user-forgot-password', (req, res) => {
 app.post('/user-forgot-password', (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
   req.session.otp = otp;
   req.session.otpEmail = email;
 
   transporter.sendMail({
-    from: 'yourgmail@gmail.com',
+    from: process.env.MAIL_USER,
     to: email,
     subject: 'User OTP for Password Reset',
     text: `Your OTP is: ${otp}`
-  }, (err, info) => {
+  }, (err) => {
     if (err) return res.send('❌ Failed to send OTP.');
     res.redirect('/reset-password.html');
   });
@@ -157,7 +155,7 @@ app.post('/verify-otp', async (req, res) => {
   });
 });
 
-// ========== ADMIN Forgot Password ==========
+// Forgot Password (Admin)
 app.get('/admin-forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-forgot-password.html'));
 });
@@ -165,16 +163,15 @@ app.get('/admin-forgot-password', (req, res) => {
 app.post('/admin-forgot-password', (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
   req.session.adminOtp = otp;
   req.session.adminOtpEmail = email;
 
   transporter.sendMail({
-    from: 'yourgmail@gmail.com',
+    from: process.env.MAIL_USER,
     to: email,
     subject: 'Admin OTP for Password Reset',
     text: `Your admin OTP is: ${otp}`
-  }, (err, info) => {
+  }, (err) => {
     if (err) return res.send('❌ Failed to send OTP.');
     res.redirect('/admin-reset-password.html');
   });
@@ -198,14 +195,12 @@ app.post('/admin-verify-otp', async (req, res) => {
   });
 });
 
-// ========== ADMIN: Edit Homepage ==========
+// Admin Homepage Editor
 app.get('/admin-edit-homepage', (req, res) => {
   if (!req.session.admin) return res.send('❌ Access Denied. Admins only.');
-
   db.query('SELECT * FROM homepage_content LIMIT 1', (err, results) => {
     if (err) return res.send('❌ Failed to fetch homepage content.');
     const data = results[0] || { title: '', subtitle: '', button_text: '' };
-
     res.send(`
       <h2>Edit Homepage Content</h2>
       <form method="POST" action="/admin-edit-homepage" style="max-width:500px;margin:auto;">
@@ -223,7 +218,6 @@ app.post('/admin-edit-homepage', (req, res) => {
   db.query('SELECT COUNT(*) as count FROM homepage_content', (err, results) => {
     if (err) return res.send('❌ Database error.');
     const count = results[0].count;
-
     if (count === 0) {
       db.query('INSERT INTO homepage_content (title, subtitle, button_text) VALUES (?, ?, ?)', [title, subtitle, button_text], (err) => {
         if (err) return res.send('❌ Failed to insert.');
@@ -238,7 +232,7 @@ app.post('/admin-edit-homepage', (req, res) => {
   });
 });
 
-// Server start
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running: http://localhost:${PORT}`);
 });
