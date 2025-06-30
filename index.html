@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ProSource Works | Home</title>
+  <link rel="stylesheet" href="main.css" />
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer></script>
+  <script src="main.js" defer></script>
+  <script>
+    // 🧠 Load session + homepage content on page load
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        // 👉 Session fetch
+        const sessionRes = await fetch("/get-session");
+        const sessionData = await sessionRes.json();
+
+        const loginDiv = document.querySelector(".login-buttons");
+        loginDiv.innerHTML = "";
+
+        if (sessionData.loggedIn) {
+          const welcome = document.createElement("span");
+          welcome.textContent = `Welcome, ${sessionData.email}`;
+          welcome.style.color = "white";
+          welcome.style.marginRight = "15px";
+          welcome.style.fontWeight = "bold";
+
+          const logout = document.createElement("a");
+          logout.href = "/logout";
+          logout.textContent = "Logout";
+          logout.className = "btn-login admin";
+
+          loginDiv.appendChild(welcome);
+
+          // 🆕 Admin Dashboard Button (only for admin)
+          if (sessionData.role === "admin") {
+            const dashBtn = document.createElement("a");
+            dashBtn.href = "/admin-dashboard.html";
+            dashBtn.textContent = "Admin Dashboard";
+            dashBtn.className = "btn-login admin";
+            loginDiv.appendChild(dashBtn);
+          }
+
+          loginDiv.appendChild(logout);
+        } else {
+          loginDiv.innerHTML = `
+            <a href="admin-login.html" class="btn-login admin">Admin Login</a>
+            <a href="user-login.html" class="btn-login user">User Login</a>
+          `;
+        }
+
+        // 👉 Homepage content fetch
+        const homepageRes = await fetch("/api/homepage-content");
+        const homepageData = await homepageRes.json();
+        if (homepageData.success) {
+          document.querySelector("#hero-title").textContent = homepageData.title;
+          document.querySelector("#hero-subtitle").textContent = homepageData.subtitle;
+          document.querySelector("#hero-button").textContent = homepageData.button_text;
+        }
+      } catch (err) {
+        console.error("⚠️ Error during load:", err);
+      }
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <div class="logo">ProSource Works</div>
+    <div class="menu-toggle" id="menu-toggle">&#9776;</div>
+    <nav id="navbar">
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#success">Success Stories</a></li>
+        <li><a href="#footer">Contact</a></li>
+      </ul>
+    </nav>
+    <!-- 🔐 Login + Admin Dashboard -->
+    <div class="login-buttons" style="display: flex; align-items: center; gap: 10px;"></div>
+  </header>
+
+  <section class="hero" id="hero">
+    <div id="particles-hero"></div>
+    <div class="hero-content">
+      <h1 id="hero-title">Leader in Supply Chain Management Consulting</h1>
+      <p id="hero-subtitle">USA – UAE – India</p>
+      <a id="hero-button" href="#services" class="btn">Explore Services</a>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="services-bg">
+      <div id="particles-services"></div>
+    </div>
+    <h2>Our Services</h2>
+    <div class="cards">
+      <a href="cost-modelling.html">
+        <div class="card" style="background-image: url('7.jpg');">
+          <div class="card-overlay">
+            <h3>Cost Modelling</h3>
+            <p>Real-time cost dashboards, ERP integration, and industry benchmarks.</p>
+          </div>
+        </div>
+      </a>
+      <a href="project-dashboarding.html">
+        <div class="card" style="background-image: url('8.jpg');">
+          <div class="card-overlay">
+            <h3>Project Dashboarding</h3>
+            <p>Custom dashboards with KPIs, risk tracking, and BI integration.</p>
+          </div>
+        </div>
+      </a>
+      <a href="project-estimation.html">
+        <div class="card" style="background-image: url('9.jpg');">
+          <div class="card-overlay">
+            <h3>Project Estimation</h3>
+            <p>Accurate forecasting using Monte Carlo and deterministic tools.</p>
+          </div>
+        </div>
+      </a>
+      <a href="market-intelligence.html">
+        <div class="card" style="background-image: url('10.jpg');">
+          <div class="card-overlay">
+            <h3>Market Intelligence</h3>
+            <p>Benchmarking, risk analytics, and strategic market insights.</p>
+          </div>
+        </div>
+      </a>
+      <a href="strategy-development.html">
+        <div class="card" style="background-image: url('11.jpg');">
+          <div class="card-overlay">
+            <h3>Strategy Development</h3>
+            <p>Capital project management, BIM, and scenario planning.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="success" id="success">
+    <h2>How We Create Impact</h2>
+    <ul>
+      <li>🔹 Saved $600mn for a major Oil Company with cost models.</li>
+      <li>🔹 Enabled a Finance Firm to save $200mn using dashboards.</li>
+      <li>🔹 Improved estimation accuracy in Energy projects by 40%.</li>
+      <li>🔹 Helped EdTech and E-commerce sectors scale with intelligence tools.</li>
+    </ul>
+  </section>
+
+  <footer id="footer">
+    <p>&copy; 2025 ProSource Works | WEAMG ELECTRONIC SOLUTIONS</p>
+  </footer>
+</body>
+</html>

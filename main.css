@@ -1,0 +1,292 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background: #f9f9f9 url('mesh.svg') no-repeat center center fixed;
+  background-size: cover;
+  color: #333;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 51, 102, 0.85);
+  color: white;
+  padding: 20px 50px;
+  backdrop-filter: blur(6px);
+}
+
+.logo {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.menu-toggle {
+  display: none;
+  font-size: 2em;
+  cursor: pointer;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #ffcc00;
+}
+
+.hero {
+  position: relative;
+  background: url('6.png') no-repeat center center/cover;
+  padding: 120px 50px;
+  text-align: center;
+  color: white;
+  overflow: hidden;
+}
+
+#particles-hero {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-content h1 {
+  font-size: 2.8em;
+  font-weight: 900;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.hero-content p {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: whitesmoke;
+}
+
+.services {
+  position: relative;
+  padding: 60px 50px;
+  color: white;
+  overflow: visible;
+}
+
+.services-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+#particles-services {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+
+.services h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+  color: black;
+}
+
+/* ✅ Horizontal scrollable card container with hover-safe spacing */
+.cards {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 30px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 20px 40px 40px 40px;
+  scroll-snap-type: x mandatory;
+  position: relative;
+  z-index: 2;
+}
+
+.cards::before {
+  content: '';
+  flex: 0 0 20px;
+}
+
+.cards a {
+  text-decoration: none;
+  color: inherit;
+  flex: 0 0 auto;
+  width: 300px;
+}
+
+/* ✅ Service card style */
+.card {
+  background-size: cover;
+  background-position: center;
+  height: 300px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: transform 0.4s ease;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  scroll-snap-align: start;
+  z-index: 1;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.card-overlay {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 20px;
+  width: 100%;
+  backdrop-filter: blur(3px);
+}
+
+.card-overlay h3 {
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.card-overlay p {
+  font-size: 0.95em;
+}
+
+.success {
+  padding: 50px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  margin: 40px;
+  border-radius: 12px;
+}
+
+.success h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.success ul {
+  max-width: 800px;
+  margin: auto;
+  line-height: 1.8;
+  font-size: 1.1em;
+  list-style: none;
+}
+
+footer {
+  background-color: rgba(0, 51, 102, 0.95);
+  color: white;
+  text-align: center;
+  padding: 15px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  nav {
+    display: none;
+    background-color: rgba(0, 51, 102, 0.95);
+  }
+
+  nav.active {
+    display: block;
+  }
+
+  nav ul {
+    flex-direction: column;
+    padding: 10px 0;
+    gap: 10px;
+  }
+
+  .hero-content h1 {
+    font-size: 2em;
+  }
+
+  .hero-content p {
+    font-size: 1em;
+  }
+
+  .card {
+    height: 250px;
+  }
+
+  .services {
+    padding: 40px 20px;
+  }
+
+  .success {
+    padding: 30px 20px;
+    margin: 30px 20px;
+  }
+}
+/* Login buttons inside header */
+.login-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-login {
+  padding: 8px 16px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.3s;
+  font-size: 0.9em;
+}
+
+.btn-login.admin {
+  background-color: #4444aa;
+  color: #fff;
+}
+
+.btn-login.admin:hover {
+  background-color: #222288;
+}
+
+.btn-login.user {
+  background-color: #00aa88;
+  color: #fff;
+}
+
+.btn-login.user:hover {
+  background-color: #008866;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-buttons {
+    flex-direction: column;
+    margin-top: 10px;
+  }
+}
