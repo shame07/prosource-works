@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Services</title>
+  <link rel="stylesheet" href="/main.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+    body {
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ffc8;
+      margin-bottom: 30px;
+    }
+
+    form {
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0, 255, 200, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    input, textarea {
+      width: 100%;
+      margin-bottom: 18px;
+      padding: 12px 15px;
+      background: #111;
+      color: #fff;
+      border: 1px solid #00ffc8;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #00ffc8;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button:hover {
+      background: #00e6b8;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .back-link a {
+      color: #00ffc8;
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h2>➕ Add New Service</h2>
+  <form method="POST" action="/admin-add-service">
+    <input type="text" name="title" placeholder="Service Title" required />
+    <textarea name="description" rows="4" placeholder="Service Description" required></textarea>
+    <input type="text" name="image_url" placeholder="Image URL" required />
+    <input type="text" name="page_url" placeholder="HTML Page Link (e.g., /cost-modelling.html)" required />
+    <button type="submit">Add Service</button>
+  </form>
+
+  <div class="back-link">
+    <a href="/admin-dashboard.html">⬅ Back to Dashboard</a>
+  </div>
+</body>
+</html>
