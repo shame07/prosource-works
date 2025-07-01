@@ -113,35 +113,25 @@ nav a:hover {
   color: black;
 }
 
-/* ✅ Horizontal scrollable card container with hover-safe spacing */
+/* ✅ Cards container (desktop: no scroll, mobile: scroll) */
 .cards {
   display: flex;
-  flex-direction: row;
   justify-content: flex-start;
   align-items: stretch;
   gap: 30px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: visible;
   padding: 20px 40px 40px 40px;
-  scroll-snap-type: x mandatory;
   position: relative;
   z-index: 2;
-}
-
-.cards::before {
-  content: '';
-  flex: 0 0 20px;
+  flex-wrap: wrap;
 }
 
 .cards a {
   text-decoration: none;
   color: inherit;
-  flex: 0 0 auto;
-  width: 300px;
+  flex: 0 0 calc(20% - 24px);
+  min-width: 220px;
 }
 
-/* ✅ Service card style */
 .card {
   background-size: cover;
   background-position: center;
@@ -153,14 +143,12 @@ nav a:hover {
   display: flex;
   align-items: flex-end;
   overflow: hidden;
-  scroll-snap-align: start;
   z-index: 1;
 }
 
 .card:hover {
   transform: scale(1.05);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-  z-index: 10;
 }
 
 .card-overlay {
@@ -209,48 +197,7 @@ footer {
   border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
-
-  nav {
-    display: none;
-    background-color: rgba(0, 51, 102, 0.95);
-  }
-
-  nav.active {
-    display: block;
-  }
-
-  nav ul {
-    flex-direction: column;
-    padding: 10px 0;
-    gap: 10px;
-  }
-
-  .hero-content h1 {
-    font-size: 2em;
-  }
-
-  .hero-content p {
-    font-size: 1em;
-  }
-
-  .card {
-    height: 250px;
-  }
-
-  .services {
-    padding: 40px 20px;
-  }
-
-  .success {
-    padding: 30px 20px;
-    margin: 30px 20px;
-  }
-}
-/* Login buttons inside header */
+/* Login buttons */
 .login-buttons {
   display: flex;
   gap: 15px;
@@ -284,7 +231,61 @@ footer {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1024px) {
+  .cards {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .cards a {
+    flex: 0 0 auto;
+    width: 80%;
+    scroll-snap-align: start;
+  }
+
+  .card {
+    height: 250px;
+  }
+}
+
 @media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  nav {
+    display: none;
+    background-color: rgba(0, 51, 102, 0.95);
+  }
+
+  nav.active {
+    display: block;
+  }
+
+  nav ul {
+    flex-direction: column;
+    padding: 10px 0;
+    gap: 10px;
+  }
+
+  .hero-content h1 {
+    font-size: 2em;
+  }
+
+  .hero-content p {
+    font-size: 1em;
+  }
+
+  .services {
+    padding: 40px 20px;
+  }
+
+  .success {
+    padding: 30px 20px;
+    margin: 30px 20px;
+  }
+
   .login-buttons {
     flex-direction: column;
     margin-top: 10px;
