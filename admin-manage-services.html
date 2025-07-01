@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Services</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body class="funky-body">
+  <h2 class="funky-heading">Manage Services</h2>
+  <form method="POST" action="/admin-add-service" class="funky-form">
+    <input type="text" name="title" placeholder="Service Title" required />
+    <textarea name="description" placeholder="Service Description" required></textarea>
+    <input type="text" name="page_url" placeholder="Page URL (e.g. cost-modelling.html)" required />
+    <input type="text" name="image_url" placeholder="Image File Name (e.g. 7.jpg)" required />
+    <button type="submit">Add Service</button>
+  </form>
+  <a href="/admin-dashboard.html" class="funky-back-btn">⬅ Back to Dashboard</a>
+</body>
+</html>

@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ MySQL DB connection using ENV values
+// MySQL DB connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -33,7 +33,7 @@ db.connect((err) => {
   else console.log('✅ Connected to MySQL DB.');
 });
 
-// ✅ Nodemailer for OTP emails (Use Gmail App Password)
+// Nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -42,7 +42,9 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Routes
+// -------------------- ROUTES ----------------------
+
+// Homepage
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/get-session', (req, res) => {
   if (req.session.admin) res.json({ loggedIn: true, email: req.session.admin.email, role: "admin" });
@@ -73,17 +75,11 @@ app.post('/register-admin', async (req, res) => {
   const { email, password, accessCode } = req.body;
   if (accessCode !== ADMIN_SECRET_CODE) return res.status(403).send('❌ Invalid access code.');
   db.query('SELECT * FROM admins WHERE email = ?', [email], async (err, results) => {
-    if (err) {
-      console.error('❌ Admin check error:', err);
-      return res.send('❌ DB error, check logs.');
-    }
+    if (err) return res.send('❌ DB error, check logs.');
     if (results.length > 0) return res.send('⚠️ Admin already exists.');
     const hash = await bcrypt.hash(password, 10);
     db.query('INSERT INTO admins (email, password) VALUES (?, ?)', [email, hash], (err) => {
-      if (err) {
-        console.error('❌ Admin creation error:', err);
-        return res.send('❌ Admin creation failed.');
-      }
+      if (err) return res.send('❌ Admin creation failed.');
       res.send('<h3>✅ Admin registered! <a href="/admin-login.html">Login</a></h3>');
     });
   });
@@ -131,7 +127,6 @@ app.post('/user-forgot-password', (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   req.session.otp = otp;
   req.session.otpEmail = email;
-
   transporter.sendMail({
     from: process.env.MAIL_USER,
     to: email,
@@ -171,7 +166,6 @@ app.post('/admin-forgot-password', (req, res) => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   req.session.adminOtp = otp;
   req.session.adminOtpEmail = email;
-
   transporter.sendMail({
     from: process.env.MAIL_USER,
     to: email,
@@ -210,10 +204,10 @@ app.get('/admin-edit-homepage', (req, res) => {
     res.send(`
       <h2>Edit Homepage Content</h2>
       <form method="POST" action="/admin-edit-homepage" style="max-width:500px;margin:auto;">
-        <input name="title" value="${data.title}" placeholder="Title" required style="width:100%;margin-bottom:10px;padding:8px;" />
-        <input name="subtitle" value="${data.subtitle}" placeholder="Subtitle" required style="width:100%;margin-bottom:10px;padding:8px;" />
-        <input name="button_text" value="${data.button_text}" placeholder="Button Text" required style="width:100%;margin-bottom:10px;padding:8px;" />
-        <button type="submit" style="padding:10px 20px;">Update</button>
+        <input name="title" value="${data.title}" required />
+        <input name="subtitle" value="${data.subtitle}" required />
+        <input name="button_text" value="${data.button_text}" required />
+        <button type="submit">Update</button>
       </form>
     `);
   });
@@ -227,18 +221,66 @@ app.post('/admin-edit-homepage', (req, res) => {
     if (count === 0) {
       db.query('INSERT INTO homepage_content (title, subtitle, button_text) VALUES (?, ?, ?)', [title, subtitle, button_text], (err) => {
         if (err) return res.send('❌ Failed to insert.');
-        res.send('✅ Homepage content added successfully. <a href="/admin-dashboard.html">Back to Dashboard</a>');
+        res.send('✅ Homepage content added. <a href="/admin-dashboard.html">Back</a>');
       });
     } else {
       db.query('UPDATE homepage_content SET title = ?, subtitle = ?, button_text = ? LIMIT 1', [title, subtitle, button_text], (err) => {
         if (err) return res.send('❌ Update failed.');
-        res.send('✅ Homepage updated! <a href="/admin-dashboard.html">Back to Dashboard</a>');
+        res.send('✅ Homepage updated. <a href="/admin-dashboard.html">Back</a>');
       });
     }
   });
 });
 
-// Start server
+// ------------------ ✅ NEW ADMIN TOOLS ------------------
+
+// View Users
+app.get('/admin-view-users', (req, res) => {
+  if (!req.session.admin) return res.send('❌ Access Denied. Admins only.');
+  db.query('SELECT * FROM users', (err, results) => {
+    if (err) return res.send('❌ Failed to fetch users.');
+    let html = `
+      <html><head><link rel="stylesheet" href="main.css"><title>View Users</title></head><body class="funky-body">
+      <h2 class="funky-heading">Registered Users</h2>
+      <table class="funky-table"><tr><th>Email</th><th>Registered On</th></tr>
+    `;
+    results.forEach(user => {
+      html += `<tr><td>${user.email}</td><td>${user.created_at || '—'}</td></tr>`;
+    });
+    html += '</table><br><a href="/admin-dashboard.html" class="funky-back-btn">⬅ Back</a></body></html>';
+    res.send(html);
+  });
+});
+
+// Daily Updates
+app.get('/admin-daily-updates', (req, res) => {
+  if (!req.session.admin) return res.send('❌ Access Denied. Admins only.');
+  res.sendFile(path.join(__dirname, 'admin-daily-updates.html'));
+});
+
+app.post('/admin-daily-updates', (req, res) => {
+  const { date, update_text } = req.body;
+  db.query('INSERT INTO daily_updates (date, update_text) VALUES (?, ?)', [date, update_text], (err) => {
+    if (err) return res.send('❌ Failed to add update.');
+    res.send('✅ Update added successfully. <a href="/admin-dashboard.html">Back</a>');
+  });
+});
+
+// Manage Services
+app.get('/admin-manage-services', (req, res) => {
+  if (!req.session.admin) return res.send('❌ Access Denied. Admins only.');
+  res.sendFile(path.join(__dirname, 'admin-manage-services.html'));
+});
+
+app.post('/admin-add-service', (req, res) => {
+  const { title, description, page_url, image_url } = req.body;
+  db.query('INSERT INTO services (title, description, page_url, image_url) VALUES (?, ?, ?, ?)', [title, description, page_url, image_url], (err) => {
+    if (err) return res.send('❌ Failed to add service.');
+    res.redirect('/admin-manage-services');
+  });
+});
+
+// Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running: http://localhost:${PORT}`);
 });
